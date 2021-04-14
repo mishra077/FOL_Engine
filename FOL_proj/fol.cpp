@@ -7,7 +7,7 @@
 #include <stack>
 
 void FOL_engine(std::stack<std::string> query, std::map<std::string, std::vector<std::string>> positive_facts) {
-	bool result = false;
+	bool result = false; 
 	std::string clause = query.top(); // Removing the Top element from the stack to be resolved
 	if (clause[0] == '~') {
 		auto it = positive_facts.begin();
