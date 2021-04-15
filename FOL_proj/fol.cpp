@@ -53,6 +53,8 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 					f = clause.find(")");
 					g = positive_facts[token][j].find("(");
 					h = positive_facts[token][j].find(")");
+					std::cout << positive_facts[token][j] << "\n";
+					std::cout << "POSITIVE_FACTS_SIZE: " << positive_facts[token].size() << "\n";
 					if (clause.substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1)) {
 						std::vector<std::string> query2;
 						int k = i + 1;
@@ -82,7 +84,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 						if (result) return true;
 					}
 				}
-				if (cl_arg > 0) {
+				if (cl_arg > 1) {
 					int match = 0;
 					std::vector<std::string> query2 = query;
 					// Case - I For first argument Eg: Play(x, _ , _ ) Play(Come, Abhi, OP)
@@ -118,8 +120,6 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 					// Case - III For last argument Eg: Play(_, _, y)
 					e = query2[i].find(",", e + 1);
 					f = query2[i].find(")");
-					std::cout << "Value of e: " << e << "\n";
-					std::cout << "Value of f: " << f << "\n";
 					g = positive_facts[token][j].find(",", g + 1);
 					h = positive_facts[token][j].find(")");
 					std::cout << "CLAUSE: " << query2[i].substr(e + 1, f - e - 1) << "\n";
@@ -165,10 +165,10 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							g = all_tok_eq[k].find("(");
 							h = all_tok_eq[k].find(")");
 							if ((query[i].substr(e + 1, f - e - 1) == all_tok_eq[k].substr(g + 1, h - g - 1)) && isupper(query[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
-								int k = i + 1;
-								while (k < query.size()) {
-									query2.push_back(query[k]);
-									k++;
+								int d = i + 1;
+								while (d < query.size()) {
+									query2.push_back(query[d]);
+									d++;
 								}
 								for (int left = 0; left < all_tok_eq.size(); left++) {
 									if (left != k) query2.push_back(all_tok_eq[left]);
@@ -178,10 +178,10 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							}
 							else if (islower(query[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
 								std::vector<std::string> query3 = Unify(query, query[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
-								int k = i + 1;
-								while (k < query3.size()) {
-									query2.push_back(query3[k]);
-									k++;
+								int d = i + 1;
+								while (d < query3.size()) {
+									query2.push_back(query3[d]);
+									d++;
 								}
 								for (int left = 0; left < all_tok_eq.size(); left++) {
 									if (left != k) query2.push_back(all_tok_eq[left]);
@@ -192,10 +192,10 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							}
 							else if (islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
 								all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query[i].substr(e + 1, f - e - 1));
-								int k = i + 1;
-								while (k < query.size()) {
-									query2.push_back(query[k]);
-									k++;
+								int d = i + 1;
+								while (d < query.size()) {
+									query2.push_back(query[d]);
+									d++;
 								}
 								for (int left = 0; left < all_tok_eq.size(); left++) {
 									if (left != k) query2.push_back(all_tok_eq[left]);
@@ -207,7 +207,9 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 						else if (cl_arg > 1) {
 							int match = 0;
 							std::vector<std::string> query3 = query;
-
+							std::cout << "*****************************" << "\n";
+							std::cout << token << "\n";
+							for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
 							// Case - I For the first argument
 							e = query[i].find("(");
 							f = query[i].find(",");
@@ -216,15 +218,80 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							if ((query3[i].substr(e + 1, f - e - 1) == all_tok_eq[k].substr(g + 1, h - g - 1)) && isupper(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
 								match++;
 							}
-							else if (islower(query[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
-								query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr())
+							else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+								query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+								for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
+								match++;
+							}
+							else if (islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+								all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+								for (auto i = all_tok_eq.begin(); i < all_tok_eq.end(); ++i) std::cout << *i << "\n";
+								match++;
+							}
+
+							// Case - II For mid arguments (Except First and last arguments)
+							for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+								e = query3[i].find(",", e + 1);
+								f = query3[i].find(",", e + 1);
+								g = all_tok_eq[k].find(",", g + 1);
+								h = all_tok_eq[k].find(",", g + 1);
+								if ((query3[i].substr(e + 1, f - e - 1) == all_tok_eq[k].substr(g + 1, h - g - 1)) && isupper(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+									match++;
+								}
+								else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+									query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+									match++;
+								}
+								else if (islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+									all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+									for (auto i = all_tok_eq.begin(); i < all_tok_eq.end(); ++i) std::cout << *i << "\n";
+									match++;
+								}
+							}
+
+							// Case - III For Last arguments
+							e = query3[i].find(",", e + 1);
+							f = query3[i].find(")");
+							g = all_tok_eq[k].find(",", g + 1);
+							h = all_tok_eq[k].find(")");
+							std::cout << "CASE-III\n";
+							std::cout << query3[i] << "\n";
+
+							if ((query3[i].substr(e + 1, f - e - 1) == all_tok_eq[k].substr(g + 1, h - g - 1)) && isupper(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+								match++;
+							}
+							else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+								query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+								match++;
+							}
+							else if (islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+								all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+								for (auto i = all_tok_eq.begin(); i < all_tok_eq.end(); ++i) std::cout << *i << "\n";
+								match++;
+							}
+							if (cl_arg == match) {
+								int d = i + 1;
+								std::cout << k << "\n";
+								std::cout << "QUERY3_SIZE: " << query3.size() << "\n";
+								while (d < query3.size()) {
+									std::cout << "YIPPPY\n";
+									query2.push_back(query3[d]);
+									d++;
+								}
+								for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+								for (int left = 0; left < all_tok_eq.size(); left++) {
+									if (left != k) query2.push_back(all_tok_eq[left]);
+								}
+								for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+
+								result = FOL_engine(query2, 0);
+								if (result) return true;
 							}
 						}
 					}
 				}
 			}
 		}
-
 	}
 		
 	
@@ -320,7 +387,7 @@ int main() {
 	std::string query[10];
 	std::string KB[100];
 	std::string s;
-	std::ifstream myfile("input.txt");
+	std::ifstream myfile("input2.txt");
 	std::getline(myfile, temp_query);
 	nq = std::stoi(temp_query);
 	for (int i = 0; i < nq; i++) {
@@ -490,7 +557,7 @@ int main() {
 	}
 	std::vector<std::string> q;
 	std::string den;
-	den = query[0];
+	den = query[1];
 	if (den != "~") {
 		den.insert(0, "~");
 	} 

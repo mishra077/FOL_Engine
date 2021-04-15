@@ -1,465 +1,547 @@
-/*#include < iostream > 
-#include < fstream > 
-#include < vector > 
-#include < string > 
-#include < algorithm > 
-#include < map > 
-#include < stdio.h > 
-#include < ctype.h > 
-#include < cstring >
+/*#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <math.h>
+#include <sstream>
+#include <map>
+#include <algorithm>
+//#include <bits/stdc++.h>
+
 using namespace std;
-std::map < string, int > mymap;
-std::map < string, int > myresult;
-bool inference_engine(string temp, string kb[10000], int kbn) {
 
+map<string, vector<string>> map_pfact;
+map<string, vector<string>> map_nfact;
+map<string, vector<vector<string>>> map_pequate;
+map<string, vector<vector<string>>> map_nequate;
 
-    if (temp.find_first_not_of(' ') == temp.npos)
-        return true;
+std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
 
-    kbn++;
-    kb[kbn] = temp;
-
-    static int tempcount = 0;
-    tempcount++;
-
-    std::pair < std::map < string, int > ::iterator, bool > ret;
-    ret = mymap.insert(std::pair < string, int >(temp, 1));
-    if (ret.second == false)
-        return false;
-
-    if (kbn > 20000)
-        return false;
-
-
-    char* temp_ptr = new char[temp.length() + 1];
-
-    std::strcpy(temp_ptr, temp.c_str());
-
-    char* ptr_to_temp = std::strtok(temp_ptr, " |");
-
-    string temp_tokens[50];
-    int k = 0;
-    while (ptr_to_temp != 0) {
-
-        temp_tokens[k] = ptr_to_temp;
-
-        k++;
-        ptr_to_temp = std::strtok(NULL, " |");
-
+vector<string> Substitute(vector<string> solution_vector, string i, string j) {
+    vector<string> solution_vector2(100, "O");
+    for (int k = 0; solution_vector[k] != "O" && k < 100; k++) {
+        solution_vector2[k] = ReplaceAll(solution_vector[k], i, j);
     }
 
-    //till here the temp query has been tokenised and stored in temp_tokens
-    k--;
-
-    for (int l = 0; l <= k; l++) {
-        bool sol = true;
-
-        // here the alphabet of each of the temp_tokens is searched in kb 
-
-        string copy_temp;
-        copy_temp = temp_tokens[l];
-
-        string cp, c;
-
-
-        std::size_t p = temp.find("(");
-        copy_temp = copy_temp.substr(0, p);
-
-        if (copy_temp[0] == '~') {
-            c.append(" ");
-            copy_temp.erase(copy_temp.begin());
-            c.append(copy_temp);
-        }
-        else {
-            c.append("~");
-            c.append(copy_temp);
-        }
-
-
-        for (int i = 1; i <= kbn; i++) {
-
-
-
-            sol = true;
-
-            for (string::size_type t = 0;
-                (t = kb[i].find(c, t)) != string::npos;) //here the literal from the kb line is found matching with some literal in query
-            {
-                sol = true;
-
-
-                unsigned brackets_temp_open = temp_tokens[l].find('('); //extracting the contents of temp (i.e, one literal in query ) within the brackets
-                unsigned brackets_temp_close = temp_tokens[l].find(')');
-                string contents_inside_brackets = temp_tokens[l].substr(brackets_temp_open + 1, brackets_temp_close - brackets_temp_open - 1);
-
-                char* cstr_inside_contents = new char[contents_inside_brackets.length() + 1];
-
-                std::strcpy(cstr_inside_contents, contents_inside_brackets.c_str());
-
-                char* p_to_contents_inside_brackets = std::strtok(cstr_inside_contents, " ,");
-                string contains_parameter_variables[10];
-                int n = 0;
-                while (p_to_contents_inside_brackets != 0)
-
-                {
-                    contains_parameter_variables[n] = p_to_contents_inside_brackets;
-
-                    n++;
-                    p_to_contents_inside_brackets = std::strtok(NULL, " ,");
-                }
-
-                //this kb has the matching term 
-                //now tokenising this kb 
-                std::string str3 = kb[i].substr(t);
-
-                char* cstrr = new char[str3.length() + 1];
-                std::strcpy(cstrr, str3.c_str());
-                char* kb_tokenr = std::strtok(cstrr, " |");
-                string temp_kb_token;
-                while (kb_tokenr != 0) {
-
-                    temp_kb_token = kb_tokenr;
-
-                    if (temp_kb_token[0] != ' ')
-                        temp_kb_token.insert(0, " ");
-
-                    std::size_t posf = temp_kb_token.find(c);
-                    if (posf != std::string::npos)
-                        break;
-
-                    kb_tokenr = std::strtok(NULL, "|");
-                }
-
-
-                unsigned brackets_kb_open = temp_kb_token.find('(');
-                unsigned brackets_kb_close = temp_kb_token.find(')');
-                string contents_inside_brackets_kb = temp_kb_token.substr(brackets_kb_open + 1, brackets_kb_close - brackets_kb_open - 1);
-
-                char* cstr_inside_contents_kb = new char[contents_inside_brackets_kb.length() + 1];
-
-                std::strcpy(cstr_inside_contents_kb, contents_inside_brackets_kb.c_str());
-
-                char* p_to_contents_inside_brackets_kb = std::strtok(cstr_inside_contents_kb, " ,");
-                string contains_parameter_variables_kb[10];
-                int nkb = 0;
-                while (p_to_contents_inside_brackets_kb != 0) {
-                    contains_parameter_variables_kb[nkb] = p_to_contents_inside_brackets_kb;
-
-                    nkb++;
-                    p_to_contents_inside_brackets_kb = std::strtok(NULL, " ,");
-
-                }
-                nkb--;
-                string unification_temp_kb;
-                unification_temp_kb.clear();
-                unification_temp_kb.append(temp);
-                unification_temp_kb.erase(unification_temp_kb.end() - 1);
-                unification_temp_kb.append(kb[i]);
-
-
-
-                int flag = 0;
-                for (int m = 0; m <= nkb; m++)
-                    if (isupper(contains_parameter_variables_kb[m][0]) and isupper(contains_parameter_variables[m][0]) and contains_parameter_variables_kb[m].compare(contains_parameter_variables[m]) == 0)
-                        flag++;
-
-
-
-                if (flag == nkb + 1) {
-
-                    sol = true;
-                    c = temp_kb_token;
-                }
-
-                for (int m = 0; m <= nkb; m++) {
-
-                    if (islower(contains_parameter_variables_kb[m][0]) and isupper(contains_parameter_variables[m][0]))
-
-                    {
-                        for (string::size_type o = 0;
-                            (o = unification_temp_kb.find(contains_parameter_variables_kb[m], o)) != string::npos;) {
-                            if ((unification_temp_kb[o + 1] == ')'
-                                or unification_temp_kb[o + 1] == ',') and (unification_temp_kb[o - 1] == '('
-                                    or unification_temp_kb[o - 1] == ',')) {
-
-                                unification_temp_kb.replace(o, contains_parameter_variables_kb[m].length(), contains_parameter_variables[m]);
-                                o += contains_parameter_variables[m].length();
-
-                                int yes = 0;
-                                for (int r = 0; r <= nkb; r++) {
-                                    if (contains_parameter_variables[r] == contains_parameter_variables_kb[m]) {
-                                        contains_parameter_variables[r] = contains_parameter_variables[m];
-
-                                        yes = 1;
-                                    }
-
-                                }
-
-                                if (yes == 1) {
-                                    m = -1;
-                                    break;
-                                }
-
-                            }
-                            else o++;
-                        }
-
-
-                    }
-                    else if (isupper(contains_parameter_variables_kb[m][0]) and islower(contains_parameter_variables[m][0])) //find and replace all variable occurances with paramater
-
-                    {
-                        // temp.erase (temp_tokens[l]);  //cancel out literals
-                        for (string::size_type o = 0;
-                            (o = unification_temp_kb.find(contains_parameter_variables[m], o)) != string::npos;) {
-
-                            if ((unification_temp_kb[o + 1] == ')'
-                                or unification_temp_kb[o + 1] == ',') and (unification_temp_kb[o - 1] == '('
-                                    or unification_temp_kb[o - 1] == ',')) {
-                                unification_temp_kb.replace(o, contains_parameter_variables[m].length(), contains_parameter_variables_kb[m]);
-                                o += contains_parameter_variables_kb[m].length();
-
-                                int yes = 0;
-                                for (int r = 0; r <= nkb; r++) {
-                                    if (contains_parameter_variables_kb[r] == contains_parameter_variables[m]) {
-                                        contains_parameter_variables_kb[r] = contains_parameter_variables_kb[m];
-
-                                        yes = 1;
-                                    }
-
-                                }
-
-                                if (yes == 1) {
-                                    m = -1;
-                                    break;
-                                }
-
-                            }
-                            else o++;
-
-                        }
-
-
-
-                    }
-                    else if (isupper(contains_parameter_variables_kb[m][0]) and isupper(contains_parameter_variables[m][0]) and contains_parameter_variables_kb[m].compare(contains_parameter_variables[m]) != 0) {
-                        sol = false;
-                        break;
-                    }
-                }
-                for (int m = 0; m <= nkb; m++) {
-
-                    if (islower(contains_parameter_variables_kb[m][0]) and islower(contains_parameter_variables[m][0]) and contains_parameter_variables_kb[m].compare(contains_parameter_variables[m]) != 0) {
-                        for (string::size_type o = 0;
-                            (o = unification_temp_kb.find(contains_parameter_variables_kb[m], o)) != string::npos;) {
-                            if ((unification_temp_kb[o + 1] == ')'
-                                or unification_temp_kb[o + 1] == ',') and (unification_temp_kb[o - 1] == '('
-                                    or unification_temp_kb[o - 1] == ',')) {
-
-                                unification_temp_kb.replace(o, contains_parameter_variables_kb[m].length(), contains_parameter_variables[m]);
-                                o += contains_parameter_variables[m].length();
-
-                            }
-                            else o++;
-                        }
-
-                    }
-
-                }
-
-
-                if (sol) {
-
-
-                    std::size_t pos_kb_term = unification_temp_kb.find("|", unification_temp_kb.find(c) + 1, 1);
-
-                    unification_temp_kb.erase(unification_temp_kb.find(c), (pos_kb_term - unification_temp_kb.find(c) + 1));
-
-                    string cc = c;
-                    if (cc[1] == '~')
-                        cc.erase(cc.begin());
-
-                    if (cc[0] == '~')
-                        cc[0] = ' ';
-                    else
-                        cc[0] = '~';
-
-                    pos_kb_term = unification_temp_kb.find("|", unification_temp_kb.find(cc) + 1, 1);
-
-                    unification_temp_kb.erase(unification_temp_kb.find(cc), (pos_kb_term - unification_temp_kb.find(cc) + 2));
-
-                    for (string::size_type o = 0;
-                        (o = unification_temp_kb.find("|", o)) != string::npos;) {
-                        if (unification_temp_kb[o - 1] != ' ')
-                            unification_temp_kb.insert(o - 1, " ");
-                        if (unification_temp_kb[o + 1] != ' ')
-                            unification_temp_kb.insert(o + 1, " ");
-                        if (unification_temp_kb[o + 1] == ' '
-                            and unification_temp_kb[o + 2] == ' ')
-                            unification_temp_kb.erase(o + 2, 1);
-                        if (unification_temp_kb[o - 1] == ' '
-                            and unification_temp_kb[o - 2] == ' ')
-                            unification_temp_kb.erase(o - 2, 1);
-                        o++;
-                    }
-                    if (unification_temp_kb[0] != ' ')
-                        unification_temp_kb.insert(0, " ");
-
-
-                    string copy_unification_temp_kb = unification_temp_kb;
-                    myresult.clear();
-                    char* cstr_result = new char[copy_unification_temp_kb.length() + 1];
-
-                    std::strcpy(cstr_result, copy_unification_temp_kb.c_str());
-
-                    char* p_to_result = std::strtok(cstr_result, " (");
-                    string result_tok;
-                    std::size_t pos_of_or = 0;
-
-                    while (p_to_result != 0)
-
-                    {
-                        result_tok = p_to_result;
-
-
-                        std::pair < std::map < string, int > ::iterator, bool > res;
-                        res = myresult.insert(std::pair < string, int >(result_tok, 1));
-                        if (res.second == false)
-                            return false;
-
-                        pos_of_or = copy_unification_temp_kb.find("|", pos_of_or + 1, 1);
-
-                        char* p_cont = &copy_unification_temp_kb[pos_of_or + 1];
-                        p_to_result = std::strtok(p_cont, " (");
-
-                    }
-
-
-
-                    if (inference_engine(unification_temp_kb, kb, kbn))
-                        return true;
-
-                }
-                t++;
-            }
-
-
-        }
-
-    }
-
-    //control came here means there is no match found so terminate search    
-
-    return false;
+    return solution_vector2;
 
 }
 
-int main() {
 
-    int q, kbn;
-
-    string query[100];
-
-    string kb[1000];
-
-    char t[50];
-
-
-    ifstream myReadFile;
-
-    ofstream myWriteFile;
-
-    myReadFile.open("input.txt");
-
-    myWriteFile.open("output.txt");
-
-    myReadFile >> q;
-
-    for (int i = 0; i < q; i++)
-
-    {
-
-        myReadFile >> query[i];
-
-        cout << "\n";
-
+bool FOL_Resolver(vector<string> solution_vector, int i, int j) {
+    bool org_result;//bool_result=false,
+    vector<string> solution_vector3(100, "O");
+    vector<string> implication(100, "O");
+    if (i > j) {
+        return true;
     }
+    else {
+        string unit_predicate, up; size_t n; int x, y, w, z, a, b, c;
+        if (solution_vector[i][0] == '~') {
+            unit_predicate = solution_vector[i].substr(1, solution_vector[i].find("(") - 1);
+            //map_nfact[token] = map_2d_initializer;
+            n = count(solution_vector[i].begin(), solution_vector[i].end(), ',');
+            //for facts
+            if (map_pfact.count(unit_predicate) > 0) {
 
-    myReadFile >> kbn;
+                for (int k = 0; (map_pfact[unit_predicate][k] != "O") && (k < 100); k++) {
+                    vector<string> solution_vector2(100, "O");
+                    if (n == 0) {
+                        x = solution_vector[i].find("(");
+                        y = solution_vector[i].find(")");
+                        w = map_pfact[unit_predicate][k].find("(");
+                        z = map_pfact[unit_predicate][k].find(")");
+                        if (solution_vector[i].substr(x + 1, y - x - 1) == map_pfact[unit_predicate][k].substr(w + 1, z - w - 1)) {
+                            a = i + 1; b = j; c = 0;
+                            while (a <= b) {
+                                solution_vector2[c] = solution_vector[a];
+                                c++; a++;
+                            }
+                            org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                            if (org_result == true) {
+                                //bool_result=true;
+                                return true;
+                            }
+                        }
+                        else if (islower((solution_vector[i].substr(x + 1, y - x - 1))[0])) {
+                            solution_vector3 = Substitute(solution_vector, solution_vector[i].substr(x + 1, y - x - 1), map_pfact[unit_predicate][k].substr(w + 1, z - w - 1));//checking
+                            a = i + 1; b = j; c = 0;
+                            while (a <= b) {
+                                solution_vector2[c] = solution_vector3[a];
+                                c++; a++;
+                            }
+                            org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                            if (org_result == true) {
+                                //bool_result=true;
+                                return true;
+                            }
+                        }
 
-    for (int i = 0; i <= kbn; i++)
+                    }
+                    else if (n > 0) {
+                        int f = 0;
+                        solution_vector3 = solution_vector;
+                        x = solution_vector3[i].find("(");
+                        y = solution_vector3[i].find(",");
+                        w = map_pfact[unit_predicate][k].find("(");
+                        z = map_pfact[unit_predicate][k].find(",");
+                        if (solution_vector3[i].substr(x + 1, y - x - 1) == map_pfact[unit_predicate][k].substr(w + 1, z - w - 1)) {
+                            f++;
+                        }
+                        else if (islower((solution_vector3[i].substr(x + 1, y - x - 1))[0])) {
+                            solution_vector3 = Substitute(solution_vector3, solution_vector3[i].substr(x + 1, y - x - 1), map_pfact[unit_predicate][k].substr(w + 1, z - w - 1));
+                            f++;
+                        }
 
-    {
+                        for (int l = n - 1; l > 0; l--) {
+                            x = solution_vector3[i].find(",", x + 1);
+                            y = solution_vector3[i].find(",", y + 1);
+                            w = map_pfact[unit_predicate][k].find(",", w + 1);
+                            z = map_pfact[unit_predicate][k].find(",", z + 1);
+                            if (solution_vector3[i].substr(x + 1, y - x - 1) == map_pfact[unit_predicate][k].substr(w + 1, z - w - 1)) {
+                                f++;
+                            }
+                            else if (islower((solution_vector3[i].substr(x + 1, y - x - 1))[0])) {
+                                solution_vector3 = Substitute(solution_vector3, solution_vector3[i].substr(x + 1, y - x - 1), map_pfact[unit_predicate][k].substr(w + 1, z - w - 1));
+                                f++;
+                            }
 
-        getline(myReadFile, kb[i], '\n');
-        kb[i].append(" | ");
+                        }
 
-        cout << "\n";
+                        x = solution_vector3[i].find(",", x + 1);
+                        y = solution_vector3[i].find(")");
+                        w = map_pfact[unit_predicate][k].find(",", w + 1);
+                        z = map_pfact[unit_predicate][k].find(")");
+                        if (solution_vector3[i].substr(x + 1, y - x - 1) == map_pfact[unit_predicate][k].substr(w + 1, z - w - 1)) {
+                            f++;
+                        }
+                        else if (islower((solution_vector3[i].substr(x + 1, y - x - 1))[0])) {
+                            solution_vector3 = Substitute(solution_vector3, solution_vector3[i].substr(x + 1, y - x - 1), map_pfact[unit_predicate][k].substr(w + 1, z - w - 1));
+                            f++;
+                        }
 
-    }
+                        if (f == n + 1) {
+                            a = i + 1; b = j; c = 0;
+                            while (a <= b) {
+                                solution_vector2[c] = solution_vector3[a];
+                                c++; a++;
+                            }
+                            org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                            if (org_result == true) {
+                                //bool_result=true;
+                                return true;
+                            }
+                        }
 
-    for (int j = 0; j <= kbn; j++)
-        kb[j].insert(0, " ");
+                    }
+                }
+            }
+            //for equations
+            if (map_pequate.count(unit_predicate) > 0) {
 
-    for (int i = 0; i < q; i++)
+                for (int k = 0; (map_pequate[unit_predicate][k][0] != "O") && k < 100; k++) {
 
-    {
+                    //implication=map_pequate[unit_predicate][k];
+                    for (int t = 0; (map_pequate[unit_predicate][k][t] != "O") && t < 100; t++) {
+                        vector<string> solution_vector2(100, "O");
+                        up = map_pequate[unit_predicate][k][t].substr(0, map_pequate[unit_predicate][k][t].find("("));
+                        //checking
+                        if (unit_predicate == up) {
+                            implication = map_pequate[unit_predicate][k];
 
-        bool ans;
+                            if (n == 0) {
+                                //copied
+                                x = solution_vector[i].find("(");
+                                y = solution_vector[i].find(")");
+                                w = implication[t].find("(");
+                                z = implication[t].find(")");
+                                if ((solution_vector[i].substr(x + 1, y - x - 1) == implication[t].substr(w + 1, z - w - 1)) && (isupper((solution_vector[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                    a = i + 1; b = j; c = 0;
+                                    while (a <= b) {
+                                        solution_vector2[c] = solution_vector[a];
+                                        c++; a++;
+                                    }
 
+                                    for (int m = 0; (implication[m] != "O") && m < 100; m++) {
+                                        if (m != t) {
+                                            solution_vector2[c] = implication[m];
+                                            c++;
+                                        }
+                                    }
 
+                                    org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                                    if (org_result == true) {
+                                        //bool_result=true;
+                                        return true;
+                                    }
+                                }
+                                else if ((islower((solution_vector[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {//checking
+                                    solution_vector3 = Substitute(solution_vector, solution_vector[i].substr(x + 1, y - x - 1), implication[t].substr(w + 1, z - w - 1));
+                                    a = i + 1; b = j; c = 0;
+                                    while (a <= b) {
+                                        solution_vector2[c] = solution_vector3[a];
+                                        c++; a++;
+                                    }
 
-        string temp;
-        string tempst;
-        tempst = query[i];
-        temp.insert(0, " ");
-        if (tempst[0] != '~') {
-            temp.append("~");
-            temp.append(tempst);
+                                    for (int m = 0; (implication[m] != "O") && m < 100; m++) {
+                                        if (m != t) {
+                                            solution_vector2[c] = implication[m];
+                                            c++;
+                                        }
+                                    }
+
+                                    org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                                    if (org_result == true) {
+                                        //bool_result=true;
+                                        return true;
+                                    }
+                                }
+                                else if (islower((implication[t].substr(w + 1, z - w - 1))[0])) {//(isupper((solution_vector[i].substr(x+1, y-x-1))[0]))&&//checking
+                                    implication = Substitute(implication, implication[t].substr(w + 1, z - w - 1), solution_vector[i].substr(x + 1, y - x - 1));
+                                    a = i + 1; b = j; c = 0;
+                                    while (a <= b) {
+                                        solution_vector2[c] = solution_vector[a];
+                                        c++; a++;
+                                    }
+
+                                    for (int m = 0; (implication[m] != "O") && m < 100; m++) {
+                                        if (m != t) {
+                                            solution_vector2[c] = implication[m];
+                                            c++;
+                                        }
+                                    }
+
+                                    org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                                    if (org_result == true) {
+                                        //bool_result=true;
+                                        return true;
+                                    }
+                                }
+                            }
+                            else if (n > 0) {
+                                //copied
+                                int f = 0;
+                                solution_vector3 = solution_vector;
+                                x = solution_vector3[i].find("(");
+                                y = solution_vector3[i].find(",");
+                                w = implication[t].find("(");
+                                z = implication[t].find(",");
+                                if ((solution_vector3[i].substr(x + 1, y - x - 1) == implication[t].substr(w + 1, z - w - 1)) && (isupper((solution_vector3[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                    f++;
+                                }
+                                else if ((islower((solution_vector3[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                    solution_vector3 = Substitute(solution_vector3, solution_vector3[i].substr(x + 1, y - x - 1), implication[t].substr(w + 1, z - w - 1));
+                                    f++;
+                                }
+                                else if (islower((implication[t].substr(w + 1, z - w - 1))[0])) {//(isupper((solution_vector[i].substr(x+1, y-x-1))[0]))&&
+                                    implication = Substitute(implication, implication[t].substr(w + 1, z - w - 1), solution_vector3[i].substr(x + 1, y - x - 1));
+                                    f++;
+                                }
+
+                                for (int l = n - 1; l > 0; l--) {
+                                    x = solution_vector3[i].find(",", x + 1);
+                                    y = solution_vector3[i].find(",", y + 1);
+                                    w = implication[t].find(",", w + 1);
+                                    z = implication[t].find(",", z + 1);
+                                    if ((solution_vector3[i].substr(x + 1, y - x - 1) == implication[t].substr(w + 1, z - w - 1)) && (isupper((solution_vector3[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                        f++;
+                                    }
+                                    else if ((islower((solution_vector3[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                        solution_vector3 = Substitute(solution_vector3, solution_vector3[i].substr(x + 1, y - x - 1), implication[t].substr(w + 1, z - w - 1));
+                                        f++;
+                                    }
+                                    else if (islower((implication[t].substr(w + 1, z - w - 1))[0])) {//(isupper((solution_vector[i].substr(x+1, y-x-1))[0]))&&
+                                        implication = Substitute(implication, implication[t].substr(w + 1, z - w - 1), solution_vector3[i].substr(x + 1, y - x - 1));
+                                        f++;
+                                    }
+
+                                }
+
+                                x = solution_vector3[i].find(",", x + 1);
+                                y = solution_vector3[i].find(")");
+                                w = implication[t].find(",", w + 1);
+                                z = implication[t].find(")");
+                                if ((solution_vector3[i].substr(x + 1, y - x - 1) == implication[t].substr(w + 1, z - w - 1)) && (isupper((solution_vector3[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                    f++;
+                                }
+                                else if ((islower((solution_vector3[i].substr(x + 1, y - x - 1))[0])) && (isupper((implication[t].substr(w + 1, z - w - 1))[0]))) {
+                                    solution_vector3 = Substitute(solution_vector3, solution_vector3[i].substr(x + 1, y - x - 1), implication[t].substr(w + 1, z - w - 1));
+                                    f++;
+                                }
+                                else if (islower((implication[t].substr(w + 1, z - w - 1))[0])) {//(isupper((solution_vector[i].substr(x+1, y-x-1))[0]))&&
+                                    implication = Substitute(implication, implication[t].substr(w + 1, z - w - 1), solution_vector3[i].substr(x + 1, y - x - 1));
+                                    f++;
+                                }
+
+                                if (f == n + 1) {
+                                    a = i + 1; b = j; c = 0;
+                                    while (a <= b) {
+                                        solution_vector2[c] = solution_vector3[a];
+                                        c++; a++;
+                                    }
+
+                                    for (int m = 0; (implication[m] != "O") && m < 100; m++) {
+                                        if (m != t) {
+                                            solution_vector2[c] = implication[m];
+                                            c++;
+                                        }
+                                    }
+
+                                    org_result = FOL_Resolver(solution_vector2, 0, c - 1);
+                                    if (org_result == true) {
+                                        //bool_result=true;
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
         }
         else {
-            temp.append(tempst);
-            temp.erase(temp.begin() + 1);
+            unit_predicate = solution_vector[i].substr(0, solution_vector[i].find("("));
+            //map_pfact[token] = map_2d_initializer;
+
         }
-
-        temp.append(" | ");
-
-        ans = inference_engine(temp, kb, kbn);
-
-        if (ans)
-
-            myWriteFile << "TRUE\n";
-
-        else
-
-            myWriteFile << "FALSE\n";
-
     }
 
-    myReadFile.close();
+    return false;
+}
 
-    myWriteFile.close();
+int main()
+{
+    string no_queries, no_kb, str, token;
+    int i = 0, e1 = 0, e2 = 0, f = 0, flag, k, t;
+    bool bool_result;
+    string query[10], KB[100];
+    vector<vector<string>> equations(100, vector<string>(100, "O"));
+    vector<string> facts(100, "O");
+    vector<string> map_2d_initializer(100, "O");
+    vector<vector<string>> map_3d_initializer(100, vector<string>(100, "O"));
+    //map<string, vector<string>> map_pfact;
+    //map<string, vector<string>> map_nfact;
+    //map<string, vector<vector<string>>> map_pequate;
+    //map<string, vector<vector<string>>> map_nequate;
+    //string equations[100][100], facts[100];
+    ifstream input_file("input3.txt");
+    ofstream output_file("output.txt");
+    
+    while (getline(input_file, str))
+    {
+        cout<<str<<endl;
+    }
+    
+    getline(input_file, no_queries);
 
-    return 0;
-    if (word[0] == '~') {
-                    word.erase(word.begin());
-                    KB_matrix[i][k] = word;
+
+    while (i < stoi(no_queries)) {
+        getline(input_file, query[i]);
+        //cout<<query[i]<<endl;
+        i++;
+    }
+    getline(input_file, no_kb);
+
+    i = 0;
+    while (i < stoi(no_kb)) {
+        getline(input_file, KB[i]);
+        //cout<<KB[i]<<endl;
+        i++;
+    }
+
+    i = 0;
+    while (i < stoi(no_kb)) {
+
+        size_t found = KB[i].find("=>");
+        if (found != string::npos) {
+            e2 = 0; flag = 0;
+            stringstream ss(KB[i]);
+            while (ss >> str) {
+                if (str == "=>") {
+                    flag = 1;
+                }
+                if (flag == 0 && str != "&" && str != "=>") {
+
+                    if (str[0] == '~') {
+                        str.erase(0, 1);
+                    }
+                    else {
+                        str.insert(0, "~");
+                    }
+                    equations[e1][e2] = str;
+                    e2++;
+                }
+                else if (flag == 1 && str != "&" && str != "=>") {
+                    equations[e1][e2] = str;
+                    e2++;
+                }
+
+            }
+            e1++;
+        }
+        else {
+
+            facts[f] = KB[i];
+            f++;
+        }
+
+        i++;
+    }
+    /*
+    cout<<"Equations"<<endl;
+    e1=0;
+    while(e1<100&&equations[e1][0]!="O"){
+        e2=0;
+        while(e2<100&&equations[e1][e2]!="O"){
+            cout<<equations[e1][e2]<<" ";
+            e2++;
+        }
+        cout<<endl;
+        e1++;
+    }
+
+    cout<<"facts"<<endl;
+    f=0;
+    while(f<100&&facts[f]!="O"){
+        cout<<facts[f]<<endl;
+        f++;
+    }
+    
+    f = 0;
+    while (f < 100 && facts[f] != "O") {
+        if (facts[f][0] == '~') {
+            token = facts[f].substr(1, facts[f].find("(") - 1);
+            map_nfact[token] = map_2d_initializer;
+            //cout<<"negative "<<token<<" "<<map_nfact[token][0]<<endl;
+        }
+        else {
+            token = facts[f].substr(0, facts[f].find("("));
+            map_pfact[token] = map_2d_initializer;
+            //cout<<"positive "<<token<<" "<<map_pfact[token][0]<<endl;
+        }
+        f++;
+    }
+
+    f = 0;
+    while (f < 100 && facts[f] != "O") {
+        if (facts[f][0] == '~') {
+            token = facts[f].substr(1, facts[f].find("(") - 1);
+            k = 0;
+            while (map_nfact[token][k] != "O") {
+                k++;
+            }
+            map_nfact[token][k] = facts[f];
+
+        }
+        else {
+            token = facts[f].substr(0, facts[f].find("("));
+            k = 0;
+            while (map_pfact[token][k] != "O") {
+                k++;
+            }
+            map_pfact[token][k] = facts[f];
+        }
+        f++;
+    }
+    //check equation logic once or twice
+    e1 = 0;
+    while (e1 < 100 && equations[e1][0] != "O") {
+        e2 = 0;
+        while (e2 < 100 && equations[e1][e2] != "O") {
+            //cout<<equations[e1][e2]<<" ";
+            if (equations[e1][e2][0] == '~') {
+                token = equations[e1][e2].substr(1, equations[e1][e2].find("(") - 1);
+                map_nequate[token] = map_3d_initializer;
+            }
+            else {
+                token = equations[e1][e2].substr(0, equations[e1][e2].find("("));
+                map_pequate[token] = map_3d_initializer;
+            }
+            e2++;
+        }
+        //cout<<endl;
+        e1++;
+    }
+
+    e1 = 0;
+    while (e1 < 100 && equations[e1][0] != "O") {
+        e2 = 0;
+        while (e2 < 100 && equations[e1][e2] != "O") {
+            //cout<<equations[e1][e2]<<" ";
+            if (equations[e1][e2][0] == '~') {
+                token = equations[e1][e2].substr(1, equations[e1][e2].find("(") - 1);
+                k = 0;
+                while (map_nequate[token][k][0] != "O") {
                     k++;
-                    //cnf_KB[i].append(word);
                 }
-                else if (word != "&" && implies == 0 && ) {
-                    cnf_KB[i].append(" | ");
+                t = 0;
+                while (equations[e1][t] != "O") {
+                    map_nequate[token][k][t] = equations[e1][t];
+                    t++;
                 }
-                else if (word == "=>") {
-                    cnf_KB[i].append(" | ");
-                    implies = 1;
+            }
+            else {
+                token = equations[e1][e2].substr(0, equations[e1][e2].find("("));
+                k = 0;
+                while (map_pequate[token][k][0] != "O") {
+                    k++;
                 }
-                else if (word[0] != '~' && implies == 1) {
-                    cnf_KB[i].append(word);
+                t = 0;
+                while (equations[e1][t] != "O") {
+                    map_pequate[token][k][t] = equations[e1][t];
+                    t++;
                 }
-                else {
-                    cnf_KB[i].append("~");
-                    cnf_KB[i].append(word);
-                }
+            }
+            e2++;
+        }
+        //cout<<endl;
+        e1++;
+    }
+    /*
+    k=0;
+    while(map_pfact["Vaccinated"][k]!="O"){
+        cout<<map_pfact["Vaccinated"][k]<<endl;
+        //cout<<" ";
+        k++;
+    }
+    */
+    //cout<<map_pfact["Healthy"][1]<<endl;
+    /*
+    k=0;
+    while(map_nequate["Learn"][k][0]!="O"){
+        t=0;
+        while(map_nequate["Learn"][k][t]!="O"){
+            cout<<map_nequate["Learn"][k][t]<<" ";
+            t++;
+        }
+        cout<<endl;
+        k++;
+    }
+     
+
+     //CODE FOR MAIN LOGIC OF RESOLUTION
+
+    for (int q = 0; q < stoi(no_queries); q++) {
+        vector<string> solution_vector(100, "O");
+        solution_vector[0] = query[q];
+        if (solution_vector[0][0] == '~') {
+            solution_vector[0].erase(0, 1);
+        }
+        else {
+            solution_vector[0].insert(0, "~");
+        }
+        bool_result = FOL_Resolver(solution_vector, 0, 0);
+        //cout<<bool_result<<endl;
+        cout << " Query: " << q << ", Result: " << ((bool_result == 1) ? "True" : "False") << " " << solution_vector[0] << endl;
+
+    }
 
 }*/
