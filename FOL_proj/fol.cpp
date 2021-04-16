@@ -32,7 +32,8 @@ std::vector<std::string> Unify(std::vector<std::string> query, std::string varia
 	return query_resolved;
 }
 
-bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of queries left - 1
+bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represent no of queries left - 1
+	std::cout << "DEPTH:" << depth << "\n";
 	bool result = false;
 	if (query.empty()) {
 		return true;
@@ -69,7 +70,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 							if(query2.size()) std::cout << "Contents of Query2 \n";
 							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query2, 0);
+							result = FOL_engine(query2, 0, ++depth);
 							std::cout << "******************\n";
 							if (result) return true;
 						}
@@ -88,7 +89,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
 							if(query3.size()) std::cout << "Contents of Query3 \n";
 							for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query3, 0);
+							result = FOL_engine(query3, 0, ++depth);
 							std::cout << "******************\n";
 							if (result) return true;
 						}
@@ -158,7 +159,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
 							if (query3.size()) std::cout << "CONTENTS OF QUERY3\n";
 							for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query3, 0);
+							result = FOL_engine(query3, 0, ++depth);
 							std::cout << "******************\n";
 							if (result) return true;
 						}
@@ -198,7 +199,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									std::cout << "******************\n";
 									if (result) return true;
 								}
@@ -218,7 +219,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									std::cout << "******************\n";
 									if (result) return true;
 
@@ -243,7 +244,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									std::cout << "******************\n";
 									if (result) return true;
 								}
@@ -348,7 +349,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									std::cout << "******************\n";
 									if (result) return true;
 								}
@@ -389,7 +390,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 							if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query2, 0);
+							result = FOL_engine(query2, 0, ++depth);
 							std::cout << "*********************\n";
 							if (result) return true;
 						}
@@ -407,7 +408,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
 							if(query3.size()) std::cout << "CONTENTS OF QUERY3\n";
 							for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query3, 0);
+							result = FOL_engine(query3, 0, ++depth);
 							std::cout << "*********************\n";
 							if (result) return true;
 						}
@@ -481,7 +482,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
 							if (query3.size()) std::cout << "QUERY3 CONTENT\n";
 							for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query3, 0);
+							result = FOL_engine(query3, 0, ++depth);
 							std::cout << "*********************\n";
 							if (result) return true;
 						}
@@ -520,7 +521,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENT OF QUERY2\n";
 									for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									if (result) return true;
 								}
 								else if (islower(query[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
@@ -539,7 +540,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
 									if (query3.size()) std::cout << "CONTENTS OF QUERY3\n";
 									for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									if (result) return true;
 
 								}
@@ -559,7 +560,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 									for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									std::cout << "*********************\n";
 									if (result) return true;
 								}
@@ -653,7 +654,7 @@ bool FOL_engine(std::vector<std::string> query, int i) { // i represent no of qu
 									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
 									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
 									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0);
+									result = FOL_engine(query2, 0, ++depth);
 									std::cout << "*********************\n";
 									if (result) return true;
 								}
@@ -759,7 +760,7 @@ int main() {
 	std::string query[10];
 	std::string KB[100];
 	std::string s;
-	std::ifstream myfile("input4.txt");
+	std::ifstream myfile("input5.txt");
 	std::getline(myfile, temp_query);
 	nq = std::stoi(temp_query);
 	for (int i = 0; i < nq; i++) {
@@ -927,14 +928,15 @@ int main() {
 			std::cout << "\n";
 		}
 	}*/
+	int depth = 0;
 	std::vector<std::string> q;
 	std::string den;
-	den = query[4];
+	den = query[0];
 	if (den != "~") {
 		den.insert(0, "~");
 	} 
 	q.push_back(den);
-	std::cout<< "RESULT:" << FOL_engine(q, 0) << "\n";
+	std::cout<< "RESULT:" << FOL_engine(q, 0, depth) << "\n";
 
 	/*std::cout << "\n" <<"Negative Facts Token" << "\n" << "\n";
 	for (auto it = negative_facts.begin(); it != negative_facts.end(); it++) {
