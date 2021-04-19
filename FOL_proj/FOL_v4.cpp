@@ -1,4 +1,4 @@
-/*#include <iostream> 
+#include <iostream> 
 #include <fstream> 
 #include <string>
 #include <sstream>
@@ -13,6 +13,9 @@ std::map<std::string, std::vector<std::string>> negative_facts;
 std::map<std::string, std::vector<std::string>> positive_facts;
 std::map<std::string, std::vector<std::vector<std::string>>> negative_equations;
 std::map<std::string, std::vector<std::vector<std::string>>> positive_equations;
+//std::map<std::string, std::vector<std::string>> substitution;
+std::map<std::string, int> standard_variables;
+std::map<std::string, int> standard_variables_f;
 
 std::string Unification(std::string predicate, const std::string& variable, const std::string& constant) {
 	size_t s_pos = predicate.find("(") + 1;
@@ -112,7 +115,7 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						h = positive_facts[token][j].find(")");
 						//std::cout << positive_facts[token][j] << "\n";
 						//std::cout << "POSITIVE_FACTS_SIZE: " << positive_facts[token].size() << "\n";
-						if (clause.substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e+1, f- e- 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
+						if (clause.substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
 							std::cout << "ARGUMENT EQUALS WITH THE ARGUMENT AND BOTH ARE CONSTANT\n";
 							std::vector<std::string> query2;
 							int k = i + 1;
@@ -131,6 +134,7 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 							std::cout << "CLAUSE'S ARGUMENT IS A VARIABLE AND FACT IS CONSTANT\n";
 							//std::cout << "YES\n";
 							std::vector<std::string> query2 = Unify(query, clause.substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+							//substitution[clause.substr(e + 1, f - e - 1)].push_back(positive_facts[token][j].substr(g + 1, h - g - 1));
 							std::vector<std::string> query3;
 							int k = i + 1;
 							std::cout << "AFTER UNIFICATION:\n";
@@ -150,16 +154,21 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						}
 						else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
 							std::cout << "BOTH ARE VARIABLES\n";
-							std::vector<std::string> query2;
+							std::vector<std::string> query2 = Unify(query, clause.substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+							std::vector<std::string> query3;
 							int k = i + 1;
-							while (k < query.size()) {
-								query2.push_back(query[k]);
+							std::cout << "AFTER UNIFICATION:\n";
+							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+							while (k < query2.size()) {
+								query3.push_back(query2[k]);
 								k++;
 							}
-							std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
-							if (query2.size()) std::cout << "Contents of Query2 \n";
-							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query2, 0, --depth);
+							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
+							if (query3.size()) std::cout << "Contents of Query3 \n";
+							for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
+
+							result = FOL_engine(query3, 0, --depth);
+
 							std::cout << "******************\n";
 							if (result) return true;
 
@@ -189,6 +198,9 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						}
 						else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
 							std::cout << "BOTH ARE VARIABLE\n";
+							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+							std::cout << "AFTER UNIFICATION\n";
+							for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
 							match++;
 						}
 						std::cout << "QUERIES AFTER PASSING THROUGH CASE-I\n";
@@ -206,6 +218,7 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 								match++;
 							}
 							else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+								query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
 								match++;
 							}
 						}
@@ -225,6 +238,7 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 							match++;
 						}
 						else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
 							match++;
 						}
 						std::cout << "QUERIES AFTER PASSING THROUGH CASE-III\n";
@@ -863,7 +877,183 @@ int main() {
 			//facts_counter++;
 		}
 	}
-	
+
+	// Standardizing the variabels For Implications
+	for (int i = 0; i < KB_matrix.size(); i++) {
+		for (int j = 0; j < KB_matrix[i].size(); j++) {
+			int arguments = std::count(KB_matrix[i][j].begin(), KB_matrix[i][j].end(), ',') + 1;
+			if (arguments == 1) {
+				int a = KB_matrix[i][j].find("(");
+				int b = KB_matrix[i][j].find(")");
+				if (islower(KB_matrix[i][j].substr(a + 1, b - a - 1)[0])) {
+					if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) == 0) {
+						standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+					}
+					else if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) > 0 && standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] != i) {
+						std::string str;
+						while (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) != 0) {
+							str = KB_matrix[i][j].substr(a + 1, b - a - 1);
+							str += KB_matrix[i][j].substr(a + 1, b - a - 1)[0];
+							KB_matrix[i] = Unify(KB_matrix[i], KB_matrix[i][j].substr(a + 1, b - a - 1), str);
+							b++;
+						}
+						standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+					}
+				}
+			}
+			else if (arguments > 1) {
+				int a = KB_matrix[i][j].find("(");
+				int b = KB_matrix[i][j].find(",");
+				if (islower(KB_matrix[i][j].substr(a + 1, b - a - 1)[0])) {
+					if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) == 0) {
+						standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+					}
+					else if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) > 0 && standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] != i) {
+						std::string str;
+						while (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) != 0) {
+							str = KB_matrix[i][j].substr(a + 1, b - a - 1);
+							str += KB_matrix[i][j].substr(a + 1, b - a - 1)[0];
+							KB_matrix[i] = Unify(KB_matrix[i], KB_matrix[i][j].substr(a + 1, b - a - 1), str);
+							b++;
+						}
+						standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+					}
+				}
+				for (int k = 0; k < arguments - 2; k++) {
+					a = KB_matrix[i][j].find(",", a + 1);
+					b = KB_matrix[i][j].find(",", a + 1);
+					if (islower(KB_matrix[i][j].substr(a + 1, b - a - 1)[0])) {
+						if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) == 0) {
+							standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+						}
+						else if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) > 0 && standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] != i) {
+							std::string str;
+							while (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) != 0) {
+								str = KB_matrix[i][j].substr(a + 1, b - a - 1);
+								str += KB_matrix[i][j].substr(a + 1, b - a - 1)[0];
+								KB_matrix[i] = Unify(KB_matrix[i], KB_matrix[i][j].substr(a + 1, b - a - 1), str);
+								b++;
+							}
+							standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+						}
+					}
+				}
+				a = KB_matrix[i][j].find(",", a + 1);
+				b = KB_matrix[i][j].find(")");
+				if (islower(KB_matrix[i][j].substr(a + 1, b - a - 1)[0])) {
+					if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) == 0) {
+						standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+					}
+					else if (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) > 0 && standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] != i) {
+						std::string str;
+						while (standard_variables.count(KB_matrix[i][j].substr(a + 1, b - a - 1)) != 0) {
+							str = KB_matrix[i][j].substr(a + 1, b - a - 1);
+							str += KB_matrix[i][j].substr(a + 1, b - a - 1)[0];
+							KB_matrix[i] = Unify(KB_matrix[i], KB_matrix[i][j].substr(a + 1, b - a - 1), str);
+							b++;
+						}
+						standard_variables[KB_matrix[i][j].substr(a + 1, b - a - 1)] = i;
+					}
+				}
+			}
+		}
+	}
+
+	// Standardizing the Facts
+	for (int i = 0; i < KB_facts_matrix.size(); i++) {
+		int arguments = std::count(KB_facts_matrix[i].begin(), KB_facts_matrix[i].end(), ',') + 1;
+		if (arguments == 1) {
+			int a = KB_facts_matrix[i].find("(");
+			int b = KB_facts_matrix[i].find(")");
+			if (islower(KB_facts_matrix[i].substr(a + 1, b - a - 1)[0])) {
+				if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) == 0) {
+					standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+				}
+				else if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) > 0 && standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] != i) {
+					std::string str;
+					std::vector<std::string> f;
+					f.push_back(KB_facts_matrix[i].substr(a + 1, b - a - 1));
+					while (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) != 0) {
+						str = KB_facts_matrix[i].substr(a + 1, b - a - 1);
+						str += KB_facts_matrix[i].substr(a + 1, b - a - 1)[0];
+						f = Unify(f, KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+						KB_facts_matrix[i] = f[0];
+						b++;
+					}
+					standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+				}
+			}
+		}
+		else if (arguments > 1) {
+			int a = KB_facts_matrix[i].find("(");
+			int b = KB_facts_matrix[i].find(",");
+			if (islower(KB_facts_matrix[i].substr(a + 1, b - a - 1)[0])) {
+				if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) == 0) {
+					standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+				}
+				else if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) > 0 && standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] != i) {
+					std::string str;
+					std::vector<std::string> f;
+					f.push_back(KB_facts_matrix[i].substr(a + 1, b - a - 1));
+					while (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) != 0) {
+						str = KB_facts_matrix[i].substr(a + 1, b - a - 1);
+						str += KB_facts_matrix[i].substr(a + 1, b - a - 1)[0];
+						f = Unify(f, KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+						KB_facts_matrix[i] = f[0];
+						//KB_facts_matrix[i] = Unify(KB_facts_matrix[i], KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+						b++;
+					}
+					standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+				}
+			}
+			for (int j = 0; j < arguments - 2; j++) {
+				a = KB_facts_matrix[i].find(",", a + 1);
+				b = KB_facts_matrix[i].find(",", a + 1);
+				if (islower(KB_facts_matrix[i].substr(a + 1, b - a - 1)[0])) {
+					if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) == 0) {
+						standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+					}
+					else if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) > 0 && standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] != i) {
+						std::string str;
+						std::vector<std::string> f;
+						f.push_back(KB_facts_matrix[i].substr(a + 1, b - a - 1));
+						while (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) != 0) {
+							str = KB_facts_matrix[i].substr(a + 1, b - a - 1);
+							str += KB_facts_matrix[i].substr(a + 1, b - a - 1)[0];
+							f = Unify(f, KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+							KB_facts_matrix[i] = f[0];
+							//KB_facts_matrix[i] = Unify(KB_facts_matrix[i], KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+							b++;
+						}
+						standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+					}
+				}
+			}
+			a = KB_facts_matrix[i].find(",", a + 1);
+			b = KB_facts_matrix[i].find(")");
+			if (islower(KB_facts_matrix[i].substr(a + 1, b - a - 1)[0])) {
+				if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) == 0) {
+					standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+				}
+				else if (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) > 0 && standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] != i) {
+					std::string str;
+					std::vector<std::string> f;
+					f.push_back(KB_facts_matrix[i].substr(a + 1, b - a - 1));
+					while (standard_variables_f.count(KB_facts_matrix[i].substr(a + 1, b - a - 1)) != 0) {
+						str = KB_facts_matrix[i].substr(a + 1, b - a - 1);
+						str += KB_facts_matrix[i].substr(a + 1, b - a - 1)[0];
+						f = Unify(f, KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+						KB_facts_matrix[i] = f[0];
+						//KB_facts_matrix[i] = Unify(KB_facts_matrix[i], KB_facts_matrix[i].substr(a + 1, b - a - 1), str);
+						b++;
+					}
+					standard_variables_f[KB_facts_matrix[i].substr(a + 1, b - a - 1)] = i;
+				}
+			}
+		}
+	}
+
+
 	// Facts Token Initialization
 	for (int i = 0; i < KB_facts_matrix.size(); i++) {
 		if (KB_facts_matrix[i][0] == '~') {
@@ -873,7 +1063,7 @@ int main() {
 			positive_facts[KB_facts_matrix[i].substr(0, KB_facts_matrix[i].find("("))];
 		}
 	}
-	
+
 	// Negative Facts Value Insertion
 	for (auto it = negative_facts.begin(); it != negative_facts.end(); it++) {
 		for (int i = 0; i < KB_facts_matrix.size(); i++) {
@@ -890,7 +1080,7 @@ int main() {
 			}
 		}
 	}
-	
+
 	// Equations Token Initialization
 	for (int i = 0; i < KB_matrix.size(); i++) {
 		for (int j = 0; j < KB_matrix[i].size(); j++) {
@@ -955,7 +1145,16 @@ int main() {
 			}
 		}
 	}
-	int depth = 90;
+	for (int i = 0; i < KB_facts_matrix.size(); i++) {
+		std::cout << KB_facts_matrix[i] << "\n";
+	}
+	for (int i = 0; i < KB_matrix.size(); i++) {
+		for (int j = 0; j < KB_matrix[i].size(); j++) {
+			std::cout << KB_matrix[i][j] << " ";
+		}
+		std::cout << "\n";
+	}
+	/*int depth = 90;
 	std::vector<std::string> result_vec;
 	for (int i = 0; i < nq; i++) {
 		std::vector<std::string> q;
@@ -980,7 +1179,7 @@ int main() {
 		}
 
 	}
-	for (auto i = result_vec.begin(); i < result_vec.end(); ++i) std::cout << *i << "\n";
+	for (auto i = result_vec.begin(); i < result_vec.end(); ++i) std::cout << *i << "\n";*/
 	/*std::vector<std::string> q;
 	std::string den;
 	den = query[0];
@@ -1007,7 +1206,7 @@ int main() {
 	for (auto it = positive_equations.begin(); it != positive_equations.end(); it++) {
 		std::cout << it->first << "\n";
 	}
-	
+
 	// Printing Negative Facts as Key-Value Pair
 	std::cout << "Printing Negative Facts as Key-Value Pair\n";
 	for (auto it = negative_facts.begin(); it != negative_facts.end(); it++) {
@@ -1017,7 +1216,7 @@ int main() {
 		}
 		std::cout << "\n";
 	}
-	
+
 	// Printing Positive Facts as Key-Value Pair
 	std::cout << "\n";
 	for (auto it = positive_facts.begin(); it != positive_facts.end(); it++) {
@@ -1026,5 +1225,5 @@ int main() {
 			std::cout << *it2 << " ";
 		}
 		std::cout << "\n";
-	}
-}*/
+	}*/
+}

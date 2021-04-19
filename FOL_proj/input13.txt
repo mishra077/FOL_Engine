@@ -1,5 +1,14 @@
-1
+10
+B(A)
+B(B)
+BA(SE)
+BB(SE)
+BC(SEEE)
 PD(S)
+PE(SE)
+PF(S)
+FG(Bob)
+HH(John)
 32
 A(A) => B(A)
 C(A) => B(B)

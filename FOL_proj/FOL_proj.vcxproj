@@ -150,6 +150,7 @@
     <ClCompile Include="fol.cpp" />
     <ClCompile Include="fol_mr.cpp" />
     <ClCompile Include="Fol_v3.cpp" />
+    <ClCompile Include="FOL_v4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
