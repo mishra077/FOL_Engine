@@ -1,0 +1,6 @@
+1
+A(x,y)
+3
+C(x,y) & ~B(x,y) & D(x,y) => A(x,y)
+B(x,y) & ~C(x,y) & ~D(x,y) => E(x,y)
+~E(Vansh,Fionna)

@@ -1,0 +1,6 @@
+1
+~A(Vansh,Mishu,Nandu)
+3
+A(x,y,z) & B(x,y,z) & ~C(x,y,z) => ~D(x)
+C(x,y,z) & D(x) => B(x,y,z)
+D(Vansh)

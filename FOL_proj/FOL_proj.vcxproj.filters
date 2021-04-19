@@ -18,6 +18,12 @@
     <ClCompile Include="fol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fol_mr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Fol_v3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt">
@@ -33,6 +39,36 @@
       <Filter>Source Files</Filter>
     </Text>
     <Text Include="input5.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input6.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input7.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input8.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input9.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input10.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input11.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input12.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input13.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input14.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input15.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
