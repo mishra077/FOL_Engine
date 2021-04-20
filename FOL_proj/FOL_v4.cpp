@@ -1,5 +1,5 @@
-#include <iostream> 
-#include <fstream> 
+#include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -13,7 +13,6 @@ std::map<std::string, std::vector<std::string>> negative_facts;
 std::map<std::string, std::vector<std::string>> positive_facts;
 std::map<std::string, std::vector<std::vector<std::string>>> negative_equations;
 std::map<std::string, std::vector<std::vector<std::string>>> positive_equations;
-//std::map<std::string, std::vector<std::string>> substitution;
 std::map<std::string, int> standard_variables;
 std::map<std::string, int> standard_variables_f;
 
@@ -115,7 +114,7 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						h = positive_facts[token][j].find(")");
 						//std::cout << positive_facts[token][j] << "\n";
 						//std::cout << "POSITIVE_FACTS_SIZE: " << positive_facts[token].size() << "\n";
-						if (clause.substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
+						if (clause.substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e+1, f- e- 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
 							std::cout << "ARGUMENT EQUALS WITH THE ARGUMENT AND BOTH ARE CONSTANT\n";
 							std::vector<std::string> query2;
 							int k = i + 1;
@@ -134,7 +133,6 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 							std::cout << "CLAUSE'S ARGUMENT IS A VARIABLE AND FACT IS CONSTANT\n";
 							//std::cout << "YES\n";
 							std::vector<std::string> query2 = Unify(query, clause.substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
-							//substitution[clause.substr(e + 1, f - e - 1)].push_back(positive_facts[token][j].substr(g + 1, h - g - 1));
 							std::vector<std::string> query3;
 							int k = i + 1;
 							std::cout << "AFTER UNIFICATION:\n";
@@ -154,21 +152,16 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						}
 						else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
 							std::cout << "BOTH ARE VARIABLES\n";
-							std::vector<std::string> query2 = Unify(query, clause.substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
-							std::vector<std::string> query3;
+							std::vector<std::string> query2;
 							int k = i + 1;
-							std::cout << "AFTER UNIFICATION:\n";
-							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
-							while (k < query2.size()) {
-								query3.push_back(query2[k]);
+							while (k < query.size()) {
+								query2.push_back(query[k]);
 								k++;
 							}
-							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
-							if (query3.size()) std::cout << "Contents of Query3 \n";
-							for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
-
-							result = FOL_engine(query3, 0, --depth);
-
+							std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
+							if (query2.size()) std::cout << "Contents of Query2 \n";
+							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+							result = FOL_engine(query2, 0, --depth);
 							std::cout << "******************\n";
 							if (result) return true;
 
@@ -178,29 +171,36 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						std::cout << "ARGUMENT MORE THAN ONE\n";
 						int match = 0;
 						std::vector<std::string> query2 = query;
+						std::string pf_str = positive_facts[token][j];
 						// Case - I For first argument Eg: Play(x, _ , _ ) Play(Come, Abhi, OP)
 						e = query2[i].find("(");
 						f = query2[i].find(",");
-						g = positive_facts[token][j].find("(");
-						h = positive_facts[token][j].find(",");
+						g = pf_str.find("(");
+						h = pf_str.find(",");
 
-						if (query2[i].substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
+						if (query2[i].substr(e + 1, f - e - 1) == pf_str.substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0]))) {
 							std::cout << "ARGUMENT EQUALS WITH THE ARGUMENT\n";
 							match++;
 						}
-						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
 							//std::cout << "HELLO\n";
 							std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
-							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
 							std::cout << "AFTER UNIFICATION\n";
+							//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
 							for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
 							match++;
 						}
-						else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+						else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+							std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+							pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+							//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+							match++;
+						}
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
 							std::cout << "BOTH ARE VARIABLE\n";
-							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
-							std::cout << "AFTER UNIFICATION\n";
-							for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+							pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+							//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
 							match++;
 						}
 						std::cout << "QUERIES AFTER PASSING THROUGH CASE-I\n";
@@ -209,16 +209,32 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
 							e = query2[i].find(",", e + 1);
 							f = query2[i].find(",", e + 1);
-							g = positive_facts[token][j].find(",", g + 1);
-							h = positive_facts[token][j].find(",", h + 1);
+							g = pf_str.find(",", g + 1);
+							h = pf_str.find(",", g + 1);
 
-							if (query2[i].substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) match++;
-							else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
-								query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+							if (query2[i].substr(e + 1, f - e - 1) == pf_str.substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0]))) {
+								//std::cout << "ARGUMENT EQUALS WITH THE ARGUMENT\n";
 								match++;
 							}
-							else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
-								query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+							else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+								//std::cout << "HELLO\n";
+								//std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+								query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+								//std::cout << "AFTER UNIFICATION\n";
+								//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+								//for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+								match++;
+							}
+							else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+								//std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+								pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+								//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+								match++;
+							}
+							else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+								//std::cout << "BOTH ARE VARIABLE\n";
+								pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+								//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
 								match++;
 							}
 						}
@@ -228,41 +244,253 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						// Case - III For last argument Eg: Play(_, _, y)
 						e = query2[i].find(",", e + 1);
 						f = query2[i].find(")");
-						g = positive_facts[token][j].find(",", g + 1);
-						h = positive_facts[token][j].find(")");
+						g = pf_str.find(",", g + 1);
+						h = pf_str.find(")");
 						//std::cout << "CLAUSE: " << query2[i].substr(e + 1, f - e - 1) << "\n";
 						//std::cout << "POSITIVE_FACTS: " << positive_facts[token][j].substr(g + 1, h - g - 1) << "\n";
-						if (query2[i].substr(e + 1, f - e - 1) == positive_facts[token][j].substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0]))) match++;
-						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
-							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+						if (query2[i].substr(e + 1, f - e - 1) == pf_str.substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0]))) {
+							//std::cout << "ARGUMENT EQUALS WITH THE ARGUMENT\n";
 							match++;
 						}
-						else if (islower(positive_facts[token][j].substr(g + 1, h - g - 1)[0])) {
-							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), positive_facts[token][j].substr(g + 1, h - g - 1));
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+							//std::cout << "HELLO\n";
+							//std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+							//std::cout << "AFTER UNIFICATION\n";
+							//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+							//for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+							match++;
+						}
+						else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+							//std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+							pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+							//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+							match++;
+						}
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+							//std::cout << "BOTH ARE VARIABLE\n";
+							pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+							//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
 							match++;
 						}
 						std::cout << "QUERIES AFTER PASSING THROUGH CASE-III\n";
 						for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+						int p = query2[i].find("(");
+						int q = query2[i].find(")");
+						int r = pf_str.find("(");
+						int s = pf_str.find(")");
+
 						if (cl_arg == match) {
 							std::cout << "CLAUSE ARGUMENT EQUALS TO NUMBER OF MATCHES\n";
+							int flag = 0;
 							std::vector<std::string> query3;
-							int k = i + 1;
-							while (k < query2.size()) {
-								query3.push_back(query2[k]);
-								k++;
+							if (query[i].substr(p + 1, q - p - 1) == pf_str.substr(r + 1, s - r - 1)) {
+								int k = 1;
+								while (k < query2.size()) {
+									query3.push_back(query2[k]);
+									k++;
+								}
+								std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
+								if (query3.size()) std::cout << "CONTENTS OF QUERY3\n";
+								for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
+								std::cout << "******************\n";
+								result = FOL_engine(query3, 0, --depth);
+								if (result) return true;
 							}
-							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
-							if (query3.size()) std::cout << "CONTENTS OF QUERY3\n";
-							for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query3, 0, --depth);
-							std::cout << "******************\n";
-							if (result) return true;
+							else {
+								while (query2[i].substr(p + 1, q - p - 1) != pf_str.substr(r + 1, s - r - 1)) {
+									if (flag == 0) {
+										e = query2[i].find("(");
+										f = query2[i].find(",");
+										g = pf_str.find("(");
+										h = pf_str.find(",");
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+											//std::cout << "HELLO\n";
+											std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+											std::cout << "AFTER UNIFICATION\n";
+											//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+											for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+											pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "BOTH ARE VARIABLE\n";
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+											std::cout << "AFTER UNIFICATION\n";
+											//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+											for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										}
+										std::cout << "QUERIES AFTER PASSING THROUGH CASE-I\n";
+										for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+										// Case - II For middle arguments Eg: Play(_, x, y, w, _ ) Leaving first and last arguments
+										for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+											e = query2[i].find(",", e + 1);
+											f = query2[i].find(",", e + 1);
+											g = pf_str.find(",", g + 1);
+											h = pf_str.find(",", g + 1);
+
+											if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+												//std::cout << "HELLO\n";
+												std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+												query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+												std::cout << "AFTER UNIFICATION\n";
+												//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+												for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+											}
+											else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+												std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+												pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+												//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+											}
+											else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+												std::cout << "BOTH ARE VARIABLE\n";
+												query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+												std::cout << "AFTER UNIFICATION\n";
+												//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+												for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+											}
+										}
+										std::cout << "QUERIES AFTER PASSING THROUGH CASE-II\n";
+										for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+
+										// Case - III For last argument Eg: Play(_, _, y)
+										e = query2[i].find(",", e + 1);
+										f = query2[i].find(")");
+										g = pf_str.find(",", g + 1);
+										h = pf_str.find(")");
+										//std::cout << "CLAUSE: " << query2[i].substr(e + 1, f - e - 1) << "\n";
+										//std::cout << "POSITIVE_FACTS: " << positive_facts[token][j].substr(g + 1, h - g - 1) << "\n";
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+											//std::cout << "HELLO\n";
+											std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+											std::cout << "AFTER UNIFICATION\n";
+											//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+											for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+											pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "BOTH ARE VARIABLE\n";
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+											std::cout << "AFTER UNIFICATION\n";
+											//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+											for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										}
+										std::cout << "QUERIES AFTER PASSING THROUGH CASE-III\n";
+										for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+										flag = 1;
+									}
+									else if (flag == 1) {
+										e = query2[i].find("(");
+										f = query2[i].find(",");
+										g = pf_str.find("(");
+										h = pf_str.find(",");
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+											//std::cout << "HELLO\n";
+											std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+											std::cout << "AFTER UNIFICATION\n";
+											//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+											for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+											pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "BOTH ARE VARIABLE\n";
+											pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+										}
+										for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+											e = query2[i].find(",", e + 1);
+											f = query2[i].find(",", e + 1);
+											g = pf_str.find(",", g + 1);
+											h = pf_str.find(",", h + 1);
+
+											if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+												//std::cout << "HELLO\n";
+												std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+												query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+												std::cout << "AFTER UNIFICATION\n";
+												//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+												for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+											}
+											else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+												std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+												pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+												//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+											}
+											else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+												std::cout << "BOTH ARE VARIABLE\n";
+												pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+												//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+											}
+										}
+										std::cout << "QUERIES AFTER PASSING THROUGH CASE-II\n";
+										for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+
+										// Case - III For last argument Eg: Play(_, _, y)
+										e = query2[i].find(",", e + 1);
+										f = query2[i].find(")");
+										g = pf_str.find(",", g + 1);
+										h = pf_str.find(")");
+										//std::cout << "CLAUSE: " << query2[i].substr(e + 1, f - e - 1) << "\n";
+										//std::cout << "POSITIVE_FACTS: " << positive_facts[token][j].substr(g + 1, h - g - 1) << "\n";
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(pf_str.substr(g + 1, h - g - 1)[0])) {
+											//std::cout << "HELLO\n";
+											std::cout << "CLAUSE ARGUMENT IS A VARIABLE\n";
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), pf_str.substr(g + 1, h - g - 1));
+											std::cout << "AFTER UNIFICATION\n";
+											//f = e + (pf_str.substr(g + 1, h - g - 1)).length() + 1;
+											for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "CLAUSE ARGUMENT IS CONSTANT\n";
+											pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(pf_str.substr(g + 1, h - g - 1)[0])) {
+											std::cout << "BOTH ARE VARIABLE\n";
+											pf_str = Unification(pf_str, pf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											//h = g + (query2[i].substr(e + 1, f - e - 1)).length() + 1;
+										}
+										std::cout << "QUERIES AFTER PASSING THROUGH CASE-III\n";
+										for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+										flag = 0;
+									}
+									p = query2[i].find("(");
+									q = query2[i].find(")");
+									r = pf_str.find("(");
+									s = pf_str.find(")");
+								}
+								int k = 1;
+								while (k < query2.size()) {
+									query3.push_back(query2[k]);
+									k++;
+								}
+								std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
+								if (query3.size()) std::cout << "CONTENTS OF QUERY3\n";
+								for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
+								std::cout << "******************\n";
+								result = FOL_engine(query3, 0, --depth);
+								if (result) return true;
+							}
 						}
 					}
 				}
 			}
 
-			// Now Check in Positive Equations 2D Vector String 
+			// Now Check in Positive Equations 2D Vector String
 			if (positive_equations.count(token) > 0) {
 				std::cout << "CHECKING IN POSITIVE EQUATIONS\n";
 				std::string eq_token;
@@ -360,8 +588,8 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 								//std::cout << token << "\n";
 								//for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
 								// Case - I For the first argument
-								e = query[i].find("(");
-								f = query[i].find(",");
+								e = query3[i].find("(");
+								f = query3[i].find(",");
 								g = all_tok_eq[k].find("(");
 								h = all_tok_eq[k].find(",");
 								if ((query3[i].substr(e + 1, f - e - 1) == all_tok_eq[k].substr(g + 1, h - g - 1)) && isupper(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
@@ -436,12 +664,152 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 									for (auto i = all_tok_eq.begin(); i < all_tok_eq.end(); ++i) std::cout << *i << "\n";
 									match++;
 								}
+								std::cout << "HELLLLLLLOOOOOOOOO\n";
+								std::cout << all_tok_eq[k] << "\n";
+								std::cout << "HELLLLLLLOOOOOOOOO\n";
+								int p = query3[i].find("(");
+								int q = query3[i].find(")");
+								int r = all_tok_eq[k].find("(");
+								int s = all_tok_eq[k].find(")");
 								if (cl_arg == match) {
+									int flag = 0;
 									std::cout << "CLAUSE ARGUMENT EQUALS THE MATCH\n";
-									int d = i + 1;
-									std::vector<std::string> equation = all_tok_eq;
-									query3 = Resolution(query3, equation);
-									std::cout << "AFTER RESOLUTION\n";
+									if (query3[i].substr(p + 1, q - p - 1) == all_tok_eq[k].substr(r + 1, s - r - 1)) {
+										std::cout << "NO WORRIES\n";
+										std::vector<std::string> equation = all_tok_eq;
+										query3 = Resolution(query3, equation);
+										std::cout << "AFTER RESOLUTION\n";
+										query2 = query3;
+										std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
+										if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
+										for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										result = FOL_engine(query2, 0, --depth);
+										std::cout << "******************\n";
+										if (result) return true;
+									}
+									else {
+										while (query3[i].substr(p + 1, q - p - 1) != all_tok_eq[k].substr(r + 1, s - r - 1)) {
+											if (flag == 0) {
+												e = query3[i].find("(");
+												f = query3[i].find(",");
+												g = all_tok_eq[k].find("(");
+												h = all_tok_eq[k].find(",");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													std::cout << query3[i].substr(e + 1, f - e - 1) << "\n";
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+													e = query3[i].find(",", e + 1);
+													f = query3[i].find(",", e + 1);
+													g = all_tok_eq[k].find(",", g + 1);
+													h = all_tok_eq[k].find(",", g + 1);
+													if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													}
+													else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													}
+													else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+														std::cout << all_tok_eq[k] << "\n";
+													}
+												}
+												e = query3[i].find(",", e + 1);
+												f = query3[i].find(")");
+												g = all_tok_eq[k].find(",", g + 1);
+												h = all_tok_eq[k].find(")");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
+												std::cout << "************\n";
+												std::cout << all_tok_eq[k] << "\n";
+												flag = 1;
+											}
+											else if (flag == 1) {
+												e = query3[i].find("(");
+												f = query3[i].find(",");
+												g = all_tok_eq[k].find("(");
+												h = all_tok_eq[k].find(",");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+													e = query3[i].find(",", e + 1);
+													f = query3[i].find(",", e + 1);
+													g = all_tok_eq[k].find(",", g + 1);
+													h = all_tok_eq[k].find(",", g + 1);
+													if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+														std::cout << all_tok_eq[k] << "\n";
+													}
+													else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													}
+													else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+														std::cout << all_tok_eq[k] << "\n";
+													}
+												}
+												e = query3[i].find(",", e + 1);
+												f = query3[i].find(")");
+												g = all_tok_eq[k].find(",", g + 1);
+												h = all_tok_eq[k].find(")");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													std::cout << all_tok_eq[k] << "\n";
+												}
+												for (auto i = query3.begin(); i < query3.end(); ++i) std::cout << *i << "\n";
+												std::cout << "************\n";
+												std::cout << all_tok_eq[k] << "\n";
+												flag = 0;
+											}
+											p = query3[i].find("(");
+											q = query3[i].find(")");
+											r = all_tok_eq[k].find("(");
+											s = all_tok_eq[k].find(")");
+										}
+										std::vector<std::string> equation = all_tok_eq;
+										query3 = Resolution(query3, equation);
+										std::cout << "AFTER RESOLUTION\n";
+										query2 = query3;
+										std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
+										if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
+										for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										result = FOL_engine(query2, 0, --depth);
+										std::cout << "******************\n";
+										if (result) return true;
+									}								
 									//std::cout << k << "\n";
 									//std::cout << "QUERY3_SIZE: " << query3.size() << "\n";
 									//while (d < query3.size()) {
@@ -449,16 +817,10 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 										//query2.push_back(query3[d]);
 										//d++;
 									//}
-									query2 = query3;
+									//query2 = query3;
 									//for (int left = 0; left < all_tok_eq.size(); left++) {
 										//if (left != k) query2.push_back(all_tok_eq[left]);
 									//}
-									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
-									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
-									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0, --depth);
-									std::cout << "******************\n";
-									if (result) return true;
 								}
 							}
 						}
@@ -539,24 +901,30 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						std::cout << "ARGUMENTS IS MORE THAN ONE\n";
 						int match = 0;
 						std::vector<std::string> query2 = query;
+						std::string nf_str = negative_facts[token][j];
 						// Case - I For first argument Eg: Play(x, _ , _ ) Play(Come, Abhi, OP)
 						e = query2[i].find("(");
 						f = query2[i].find(",");
-						g = negative_facts[token][j].find("(");
-						h = negative_facts[token][j].find(",");
+						g = nf_str.find("(");
+						h = nf_str.find(",");
 
-						if (query2[i].substr(e + 1, f - e - 1) == negative_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e + 1, f - e - 1)[0]) && isupper(negative_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
+						if (query2[i].substr(e + 1, f - e - 1) == nf_str.substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0]))) {
 							std::cout << "BOTH ARGUMENTS ARE EQUAL\n";
 							match++;
 						}
-						else if (islower(clause.substr(e + 1, f - e - 1)[0]) && isupper(negative_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
 							std::cout << "CLAUSE ARGUMENT IS VARIBALE\n";
-							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), negative_facts[token][j].substr(g + 1, h - g - 1));
+							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
 							std::cout << "AFTER UNIFICATION\n";
 							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
 							match++;
 						}
-						else if (islower(negative_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+						else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+							nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+							match++;
+						}
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+							nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
 							std::cout << "BOTH ARGUMENTS ARE VARIABLE\n";
 							match++;
 						}
@@ -567,15 +935,27 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
 							e = query2[i].find(",", e + 1);
 							f = query2[i].find(",", e + 1);
-							g = negative_facts[token][j].find(",", g + 1);
-							h = negative_facts[token][j].find(",", h + 1);
+							g = nf_str.find(",", g + 1);
+							h = nf_str.find(",", g + 1);
 
-							if (query2[i].substr(e + 1, f - e - 1) == negative_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e + 1, f - e - 1)[0]) && isupper(negative_facts[token][j].substr(g + 1, h - g - 1)[0]))) match++;
-							else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(negative_facts[token][j].substr(g + 1, h - g - 1)[0])) {
-								query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), negative_facts[token][j].substr(g + 1, h - g - 1));
+							if (query2[i].substr(e + 1, f - e - 1) == nf_str.substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0]))) {
+								std::cout << "BOTH ARGUMENTS ARE EQUAL\n";
 								match++;
 							}
-							else if (islower(negative_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+							else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+								std::cout << "CLAUSE ARGUMENT IS VARIBALE\n";
+								query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+								std::cout << "AFTER UNIFICATION\n";
+								for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
+								match++;
+							}
+							else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+								nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+								match++;
+							}
+							else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+								nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+								std::cout << "BOTH ARGUMENTS ARE VARIABLE\n";
 								match++;
 							}
 						}
@@ -585,39 +965,162 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 						// Case - III For last argument Eg: Play(_, _, y)
 						e = query2[i].find(",", e + 1);
 						f = query2[i].find(")");
-						g = negative_facts[token][j].find(",", g + 1);
-						h = negative_facts[token][j].find(")");
-						if (query2[i].substr(e + 1, f - e - 1) == negative_facts[token][j].substr(g + 1, h - g - 1) && (isupper(clause.substr(e + 1, f - e - 1)[0]) && isupper(negative_facts[token][j].substr(g + 1, h - g - 1)[0]))) {
+						g = nf_str.find(",", g + 1);
+						h = nf_str.find(")");
+						if (query2[i].substr(e + 1, f - e - 1) == nf_str.substr(g + 1, h - g - 1) && (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0]))) {
 							std::cout << "BOTH ARGUMENTS ARE EQUAL\n";
 							match++;
 						}
-						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(negative_facts[token][j].substr(g + 1, h - g - 1)[0])) {
-							std::cout << "CLAUSE ARGUMENT IS VARIABLE\n";
-							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), negative_facts[token][j].substr(g + 1, h - g - 1));
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+							std::cout << "CLAUSE ARGUMENT IS VARIBALE\n";
+							query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
 							std::cout << "AFTER UNIFICATION\n";
 							for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
 							match++;
 						}
-						else if (islower(negative_facts[token][j].substr(g + 1, h - g - 1)[0])) {
+						else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+							nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+							match++;
+						}
+						else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+							nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
 							std::cout << "BOTH ARGUMENTS ARE VARIABLE\n";
 							match++;
 						}
+
+						int p = query2[i].find("(");
+						int q = query2[i].find(")");
+						int r = nf_str.find("(");
+						int s = nf_str.find(")");
+
 						std::cout << "AFTER CASE-III\n";
 						for (auto i = query2.begin(); i != query2.end(); ++i) std::cout << *i << "\n";
 						if (cl_arg == match) {
 							std::cout << "CLAUSE ARGUMENT AND MATCH ARE EQUAL\n";
 							std::vector<std::string> query3;
-							int k = i + 1;
-							while (k < query2.size()) {
-								query3.push_back(query2[k]);
-								k++;
+							int flag = 0;
+							if (query2[i].substr(p + 1, q - p - 1) == nf_str.substr(r + 1, s - r - 1)) {
+								int k = 1;
+								while (k < query2.size()) {
+									query3.push_back(query2[k]);
+									k++;
+								}
+								std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
+								if (query3.size()) std::cout << "QUERY3 CONTENT\n";
+								for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
+								result = FOL_engine(query3, 0, --depth);
+								std::cout << "*********************\n";
+								if (result) return true;
 							}
-							std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
-							if (query3.size()) std::cout << "QUERY3 CONTENT\n";
-							for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
-							result = FOL_engine(query3, 0, --depth);
-							std::cout << "*********************\n";
-							if (result) return true;
+							else {
+								while (query2[i].substr(p + 1, q - p - 1) != nf_str.substr(r + 1, s - r - 1)) {
+									if (flag == 0) {
+										e = query2[i].find("(");
+										f = query2[i].find(",");
+										g = nf_str.find("(");
+										h = nf_str.find(",");
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+										}
+										for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+											e = query2[i].find(",", e + 1);
+											f = query2[i].find(",", e + 1);
+											g = nf_str.find(",", g + 1);
+											h = nf_str.find(",", g + 1);
+
+											if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+												query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+											}
+											else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+												query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+											}
+											else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+												nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											}
+										}
+										e = query2[i].find(",", e + 1);
+										f = query2[i].find(")");
+										g = nf_str.find(",", g + 1);
+										h = nf_str.find(")");
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+										}
+										flag = 1;
+									}
+									else if (flag == 1) {
+										e = query2[i].find("(");
+										f = query2[i].find(",");
+										g = nf_str.find("(");
+										h = nf_str.find(",");
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+										}
+										for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+											e = query2[i].find(",", e + 1);
+											f = query2[i].find(",", e + 1);
+											g = nf_str.find(",", g + 1);
+											h = nf_str.find(",", g + 1);
+
+											if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+												nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											}
+											else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+												query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+											}
+											else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+												nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+											}
+										}
+										e = query2[i].find(",", e + 1);
+										f = query2[i].find(")");
+										g = nf_str.find(",", g + 1);
+										h = nf_str.find(")");
+										if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+										}
+										else if (islower(query2[i].substr(e + 1, f - e - 1)[0]) && isupper(nf_str.substr(g + 1, h - g - 1)[0])) {
+											query2 = Unify(query2, query2[i].substr(e + 1, f - e - 1), nf_str.substr(g + 1, h - g - 1));
+										}
+										else if (isupper(query2[i].substr(e + 1, f - e - 1)[0]) && islower(nf_str.substr(g + 1, h - g - 1)[0])) {
+											nf_str = Unification(nf_str, nf_str.substr(g + 1, h - g - 1), query2[i].substr(e + 1, f - e - 1));
+										}
+										flag = 0;
+									}
+									p = query2[i].find("(");
+									q = query2[i].find(")");
+									r = nf_str.find("(");
+									s = nf_str.find(")");
+								}
+								int k = 1;
+								while (k < query2.size()) {
+									query3.push_back(query2[k]);
+									k++;
+								}
+								std::cout << "QUERY3 SIZE:" << query3.size() << "\n";
+								if (query3.size()) std::cout << "QUERY3 CONTENT\n";
+								for (auto i = query3.begin(); i != query3.end(); ++i) std::cout << *i << "\n";
+								result = FOL_engine(query3, 0, --depth);
+								std::cout << "*********************\n";
+								if (result) return true;
+							}
 						}
 					}
 				}
@@ -713,8 +1216,8 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 								int match = 0;
 								std::vector<std::string> query3 = query;
 								// Case - I For the first argument
-								e = query[i].find("(");
-								f = query[i].find(",");
+								e = query3[i].find("(");
+								f = query3[i].find(",");
 								g = all_tok_eq[k].find("(");
 								h = all_tok_eq[k].find(",");
 								if ((query3[i].substr(e + 1, f - e - 1) == all_tok_eq[k].substr(g + 1, h - g - 1)) && isupper(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
@@ -784,25 +1287,132 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 									for (auto i = all_tok_eq.begin(); i < all_tok_eq.end(); ++i) std::cout << *i << "\n";
 									match++;
 								}
+
+								int p = query3[i].find("(");
+								int q = query3[i].find(")");
+								int r = all_tok_eq[k].find("(");
+								int s = all_tok_eq[k].find(")");
+
 								if (cl_arg == match) {
-									std::cout << "CLAUSE ARGUMENT EQUALS MATCH\n";
-									std::vector<std::string> equation = all_tok_eq;
-									query2 = Resolution(query3, equation);
-									std::cout << "AFTER MULTIPLE RESOLUTION\n";
-									//int d = i + 1;
-									//while (d < query3.size()) {
-										//query2.push_back(query3[d]);
-										//d++;
-									//}
-									//for (int left = 0; left < all_tok_eq.size(); left++) {
-										//if (left != k) query2.push_back(all_tok_eq[left]);
-									//}
-									std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
-									if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
-									for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
-									result = FOL_engine(query2, 0, --depth);
-									std::cout << "*********************\n";
-									if (result) return true;
+									int flag = 0;
+									if (query3[i].substr(p + 1, q - p - 1) == all_tok_eq[k].substr(r + 1, s - r - 1)) {
+										std::cout << "CLAUSE ARGUMENT EQUALS MATCH\n";
+										std::vector<std::string> equation = all_tok_eq;
+										query2 = Resolution(query3, equation);
+										std::cout << "AFTER MULTIPLE RESOLUTION\n";
+										std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
+										if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
+										for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										result = FOL_engine(query2, 0, --depth);
+										std::cout << "*********************\n";
+										if (result) return true;
+									}
+									else {
+										while (query3[i].substr(p + 1, q - p - 1) != all_tok_eq[k].substr(r + 1, s - r - 1)) {
+											if (flag == 0) {
+												e = query3[i].find("(");
+												f = query3[i].find(",");
+												g = all_tok_eq[k].find("(");
+												h = all_tok_eq[k].find(",");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+												}
+												for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+													e = query3[i].find(",", e + 1);
+													f = query3[i].find(",", e + 1);
+													g = all_tok_eq[k].find(",", g + 1);
+													h = all_tok_eq[k].find(",", g + 1);
+													if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													}
+													else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													}
+													else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													}
+												}
+												e = query3[i].find(",", e + 1);
+												f = query3[i].find(")");
+												g = all_tok_eq[k].find(",", g + 1);
+												h = all_tok_eq[k].find(")");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+												}
+												flag = 1;
+											}
+											else if (flag == 1) {
+												e = query3[i].find("(");
+												f = query3[i].find(",");
+												g = all_tok_eq[k].find("(");
+												h = all_tok_eq[k].find(",");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+												}
+												for (int mid_arg = 0; mid_arg < cl_arg - 2; mid_arg++) {
+													e = query3[i].find(",", e + 1);
+													f = query3[i].find(",", e + 1);
+													g = all_tok_eq[k].find(",", g + 1);
+													h = all_tok_eq[k].find(",", g + 1);
+													if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													}
+													else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+													}
+													else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+														all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+													}
+												}
+												e = query3[i].find(",", e + 1);
+												f = query3[i].find(")");
+												g = all_tok_eq[k].find(",", g + 1);
+												h = all_tok_eq[k].find(")");
+												if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+												}
+												else if (islower(query3[i].substr(e + 1, f - e - 1)[0]) && isupper(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													query3 = Unify(query3, query3[i].substr(e + 1, f - e - 1), all_tok_eq[k].substr(g + 1, h - g - 1));
+												}
+												else if (isupper(query3[i].substr(e + 1, f - e - 1)[0]) && islower(all_tok_eq[k].substr(g + 1, h - g - 1)[0])) {
+													all_tok_eq = Unify(all_tok_eq, all_tok_eq[k].substr(g + 1, h - g - 1), query3[i].substr(e + 1, f - e - 1));
+												}
+												flag = 0;
+											}
+											p = query3[i].find("(");
+											q = query3[i].find(")");
+											r = all_tok_eq[k].find("(");
+											s = all_tok_eq[k].find(")");
+										}
+										std::cout << "CLAUSE ARGUMENT EQUALS MATCH\n";
+										std::vector<std::string> equation = all_tok_eq;
+										query2 = Resolution(query3, equation);
+										std::cout << "AFTER MULTIPLE RESOLUTION\n";
+										std::cout << "QUERY2 SIZE:" << query2.size() << "\n";
+										if (query2.size()) std::cout << "CONTENTS OF QUERY2\n";
+										for (auto i = query2.begin(); i < query2.end(); ++i) std::cout << *i << "\n";
+										result = FOL_engine(query2, 0, --depth);
+										std::cout << "*********************\n";
+										if (result) return true;
+									}
 								}
 							}
 						}
@@ -810,8 +1420,8 @@ bool FOL_engine(std::vector<std::string> query, int i, int depth) { // i represe
 				}
 			}
 		}
-		return false;
 	}
+	return false;
 }
 
 int main() {
@@ -821,7 +1431,7 @@ int main() {
 	std::string query[10];
 	std::string KB[100];
 	std::string s;
-	std::ifstream myfile("input13.txt");
+	std::ifstream myfile("input20.txt");
 	std::getline(myfile, temp_query);
 	nq = std::stoi(temp_query);
 	for (int i = 0; i < nq; i++) {
@@ -1154,7 +1764,7 @@ int main() {
 		}
 		std::cout << "\n";
 	}
-	/*int depth = 90;
+	int depth = 20;
 	std::vector<std::string> result_vec;
 	for (int i = 0; i < nq; i++) {
 		std::vector<std::string> q;
@@ -1179,7 +1789,7 @@ int main() {
 		}
 
 	}
-	for (auto i = result_vec.begin(); i < result_vec.end(); ++i) std::cout << *i << "\n";*/
+	for (auto i = result_vec.begin(); i < result_vec.end(); ++i) std::cout << *i << "\n";
 	/*std::vector<std::string> q;
 	std::string den;
 	den = query[0];

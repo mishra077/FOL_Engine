@@ -74,5 +74,20 @@
     <Text Include="input15.txt">
       <Filter>Source Files</Filter>
     </Text>
+    <Text Include="input16.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input17.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input18.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input19.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="input20.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
