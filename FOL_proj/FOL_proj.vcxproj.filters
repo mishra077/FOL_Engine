@@ -27,6 +27,9 @@
     <ClCompile Include="FOL_v4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FOL_final_version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt">

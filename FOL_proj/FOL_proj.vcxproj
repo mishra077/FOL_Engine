@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fol.cpp" />
+    <ClCompile Include="FOL_final_version.cpp" />
     <ClCompile Include="fol_mr.cpp" />
     <ClCompile Include="Fol_v3.cpp" />
     <ClCompile Include="FOL_v4.cpp" />
